@@ -3,6 +3,7 @@ package com.bignerdranch.android.prak22.database
 import androidx.lifecycle.LiveData
 import java.util.*
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -18,4 +19,6 @@ interface CrimeDao {
     fun updateCrime(crime: Crime)
     @Insert
     fun addCrime(crime: Crime)
+    @Delete
+    fun killCrime(crime:Crime)
 }

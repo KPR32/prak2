@@ -26,7 +26,13 @@ constructor(context: Context) {
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
     fun updateCrime(crime: Crime) {
         executor.execute {
+
             crimeDao.updateCrime(crime)
+        }
+    }
+    fun deleteCrime(crime:Crime){
+        executor.execute{
+            crimeDao.killCrime(crime)
         }
     }
     fun addCrime(crime: Crime) {

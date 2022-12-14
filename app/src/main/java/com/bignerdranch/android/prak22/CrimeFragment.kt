@@ -54,6 +54,7 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
         crime = Crime()
 
         val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
+
         crimeDetailViewModel.loadCrime(crimeId)
 
 
@@ -70,9 +71,6 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
         suspectButton = view.findViewById(R.id.crime_suspect) as Button
         photoButton = view.findViewById(R.id.crime_camera) as ImageButton
         photoView = view.findViewById(R.id.crime_photo) as ImageView
-
-
-
         return view
     }
     override fun onViewCreated(view: View,savedInstanceState: Bundle?) {
@@ -87,6 +85,7 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
                         FileProvider.getUriForFile(requireActivity(),
                             "com.bignerdranch.android.criminalintent.fileprovider",
                                     photoFile)
+                if(R.id.crime_title.toString().isNotEmpty() )
                     updateUI()
                 }
             })
@@ -137,20 +136,24 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
                 show(this@CrimeFragment.requireFragmentManager(), DIALOG_TIME)
             }
         }
-        reportButton.setOnClickListener { Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT,
-                getCrimeReport())
-            putExtra(
-                Intent.EXTRA_SUBJECT,
-                getString(R.string.crime_report_subject))
-        }.also { intent ->
-            val chooserIntent =
-                Intent.createChooser(intent,
-                    getString(R.string.send_report))
-            startActivity(chooserIntent)
-        }
-        }
+        reportButton.setOnClickListener         {
+            if(R.id.crime_title.toString().isNotEmpty() ) {
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT,
+                        getCrimeReport())
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        getString(R.string.crime_report_subject))
+                }.also { intent ->
+                    val chooserIntent =
+                        Intent.createChooser(intent,
+                            getString(R.string.send_report))
+                    startActivity(chooserIntent)
+                }
+            }
+            }
+
 
         suspectButton.apply {
             val pickContactIntent = Intent(
@@ -208,7 +211,10 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
 
     override fun onStop() {
         super.onStop()
-        crimeDetailViewModel.saveCrime(crime)
+        if(R.id.crime_title.toString().isNotEmpty() ) {
+            crimeDetailViewModel.saveCrime(crime)
+        }
+
     }
     override fun onDetach() {
         super.onDetach()
@@ -224,18 +230,24 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
         updateUI()
     }
     @SuppressLint("SimpleDateFormat")
-    private fun updateUI() {
+    private fun updateUI()
+    {
         titleField.setText(crime.title)
-        dateButton.text = SimpleDateFormat("EEEE, MMM d, yyyy").format(crime.date)
-        timeButton.text = SimpleDateFormat("k:m").format(crime.date)
-        solvedCheckBox.apply {
-            isChecked = crime.isSolved
-            jumpDrawablesToCurrentState()
+        if(R.id.crime_title.toString().isNotEmpty() )
+        {
+            dateButton.text = SimpleDateFormat("EEEE, MMM d, yyyy").format(crime.date)
+            timeButton.text = SimpleDateFormat("k:m").format(crime.date)
+            solvedCheckBox.apply {
+                isChecked = crime.isSolved
+                jumpDrawablesToCurrentState()
+            }
+            if (crime.suspect.isNotEmpty()) {
+                suspectButton.text = crime.suspect
+            }
+            updatePhotoView()
         }
-        if (crime.suspect.isNotEmpty()) {
-            suspectButton.text = crime.suspect
-        }
-        updatePhotoView()
+
+
 
     }
     private fun updatePhotoView() {
@@ -267,9 +279,11 @@ class CrimeFragment : Fragment(),DatePickerFragment.Callbacks,TimePickerFragment
                     val suspect =
                         it.getString(0)
                     crime.suspect = suspect
-                    crimeDetailViewModel.saveCrime(crime)
-                    suspectButton.text =
-                        suspect
+                    if(R.id.crime_title.toString().isNotEmpty() ){
+                        crimeDetailViewModel.saveCrime(crime)
+                        suspectButton.text =
+                            suspect
+                    }
                 }
             }
             requestCode == REQUEST_PHOTO -> {

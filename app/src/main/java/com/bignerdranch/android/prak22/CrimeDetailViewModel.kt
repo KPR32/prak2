@@ -20,7 +20,13 @@ class CrimeDetailViewModel() : ViewModel() {
         crimeIdLiveData.value = crimeId
     }
     fun saveCrime(crime: Crime) {
-        crimeRepository.updateCrime(crime)
+
+        if(crime.title!=""){
+            crimeRepository.updateCrime(crime)
+        } else{
+            crimeRepository.deleteCrime(crime)
+        }
+
     }
     fun getPhotoFile(crime: Crime): File {
         return crimeRepository.getPhotoFile(crime)
